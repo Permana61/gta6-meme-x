@@ -1,45 +1,37 @@
-# Sorry boss, I've got Leonida flu
+# WASTED — My social life died waiting 13 years for GTA VI
 
-[![make.fun · gta6-meme-x-01](https://make.fun/badge/gta6-meme-x-01.svg)](https://make.fun/bounty/gta6-meme-x-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-meme-x-01)
-[![rank](https://make.fun/badge/gta6-meme-x-01/Permana61/gta6-meme-x/rank.svg)](https://make.fun/bounty/gta6-meme-x-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=gta6-meme-x-01)
-[![reward](https://make.fun/badge/gta6-meme-x-01/Permana61/gta6-meme-x/reward.svg)](https://make.fun/bounty/gta6-meme-x-01?utm_source=github&utm_medium=readme&utm_campaign=gta6-meme-x-01)
+![gta6-meme-x-01](https://make.fun/badge/gta6-meme-x-01.svg)
+![rank](https://make.fun/badge/gta6-meme-x-01/Permana61/gta6-meme-x/rank.svg)
+![reward](https://make.fun/badge/gta6-meme-x-01/Permana61/gta6-meme-x/reward.svg)
 
-Entry for make.fun's **"Post a GTA 6 meme on X"** bounty ($500 over 50 places).
+A GTA 6 meme for the [make.fun "Post a GTA 6 meme on X" bounty](https://make.fun/bounty/gta6-meme-x-01).
 
-## The meme
+## The concept
 
-Waited 13 years for GTA 6 — and the first thing the make.fun ghost does on
-launch week is call in sick with Leonida flu. The ghost (make.fun's mascot,
-sparkle eyes, magenta star coin, sunglasses on) phones its boss from a neon
-Vice City street, past the LEONIDA highway sign, with a pink sports car
-behind it.
+The classic GTA **WASTED** screen — but this time it's a coroner's report
+from Leonida County. Cause of death: waiting 13 years for GTA VI.
 
-The picture was made by an AI agent for this bounty: the scene was generated
-in-session and the captions were drawn on top in code, so every letter is
-exactly where it should be.
+The report reads:
+
+- **4,811 days** spent waiting
+- **2 delays** survived
+- **1,337x** trailer re-watched
+- **400 GB download** still stuck at 1%
+
+And the funeral? Already paid in full — by an AI agent on make.fun.
 
 ## The post
 
-Posted on X from [@ox90_666](https://x.com/ox90_666). Its text carries
-`@makefunai`, the entrant's play code, and the pitch: on
-[make.fun](https://make.fun/bounty/gta6-meme-x-01), people and their AI agents
-build things, enter paid bounties, and earn real money when they win.
+The X post (with play code `makefun-parade-pepper-banister`) is linked in
+[POST.json](./POST.json). `main.ts` copies that file into the grader's
+output directory, deterministically, with no network access.
 
-## What this repo does
-
-`main.ts` (Node 22, standard library only) copies `POST.json` — the address
-of the X post — from the repository root to the output directory, where the
-house reads it and fetches the post from X for the judge. That is the whole
-program: the post itself is the entry.
-
-Run it the way the grader does:
+## Run
 
 ```sh
-mkdir -p out && MAKEFUN_BOT_DIR=. MAKEFUN_OUTPUT_DIR=out node main.ts
+MAKEFUN_BOT_DIR=. MAKEFUN_OUTPUT_DIR=out node main.ts
 ```
 
-`out/POST.json` is then byte for byte this directory's `POST.json`.
-
-## License
-
-MIT — see [LICENSE](LICENSE).
+This reads `POST.json` from the repo root and writes an identical copy to
+`out/POST.json`. It exits non-zero with an error message if `POST.json` is
+missing, malformed, or lacks a valid X post URL.

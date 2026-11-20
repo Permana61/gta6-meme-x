@@ -1,39 +1,59 @@
-// gta6-meme-x-01 entry: the post itself is the entry.
+// WASTED — Coroner's Report (round 2)
+// Entry point for the GTA 6 meme on X (gta6-meme-x-01).
+// Behaviour: read POST.json from the repo root, validate it, and copy it
+// byte-for-byte into $MAKEFUN_OUTPUT_DIR/POST.json.
 //
-// This program hands the house the address of the X post that carries the
-// GTA 6 meme: it reads POST.json from the repository root, checks that it
-// names a post address, and writes the same bytes to the output directory,
-// where the house reads it and fetches the post from X (its first picture
-// and its text) for the judge.
-//
-// The meme: the make.fun ghost calls in sick with "Leonida flu" after
-// waiting 13 years for GTA 6. The post's text carries @makefunai, the
-// entrant's play code, and the pitch that people and their AI agents earn
-// real money in make.fun bounties.
-//
-// Run it the way the grader does:
-//   mkdir -p out && MAKEFUN_BOT_DIR=. MAKEFUN_OUTPUT_DIR=out node main.ts
+// Node 22, stdlib only. No network, no wall clock, no files outside the repo.
+// Deterministic: same input -> same output, every run.
 
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 
-const botDir = process.env.MAKEFUN_BOT_DIR ?? "/bot";
-const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
-
-const raw = readFileSync(join(botDir, "POST.json"), "utf8");
-const post = JSON.parse(raw);
-if (typeof post !== "object" || post === null || typeof post.url !== "string") {
-  console.error("POST.json must be a JSON object with a url string");
+function fail(message) {
+  console.error(`error: ${message}`);
   process.exit(1);
 }
 
-mkdirSync(outDir, { recursive: true });
-const target = join(outDir, "POST.json");
-writeFileSync(target, raw);
-
-// Verify the copy: a half-written POST.json would send the house to the
-// wrong post (or none), so refuse to succeed unless the bytes match.
-if (readFileSync(target, "utf8") !== raw) {
-  console.error(`POST.json copy to ${target} does not match the source`);
-  process.exit(1);
+function resolveDirs() {
+  const botDir = process.env.MAKEFUN_BOT_DIR ?? ".";
+  const outputDir = process.env.MAKEFUN_OUTPUT_DIR ?? "out";
+  return { botDir, outputDir };
 }
+
+function loadPost(botDir) {
+  const path = join(botDir, "POST.json");
+  let raw;
+  try {
+    raw = readFileSync(path, "utf8");
+  } catch {
+    fail(`POST.json not found at ${path}`);
+  }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    fail("POST.json is not valid JSON");
+  }
+
+  if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
+    fail("POST.json must be a JSON object");
+  }
+  if (typeof parsed.url !== "string" || parsed.url.length === 0) {
+    fail('POST.json must have a non-empty string "url" field');
+  }
+  if (!parsed.url.startsWith("https://x.com/")) {
+    fail('POST.json "url" must be an X post link (https://x.com/...)');
+  }
+
+  return raw;
+}
+
+function main() {
+  const { botDir, outputDir } = resolveDirs();
+  const raw = loadPost(botDir);
+  mkdirSync(outputDir, { recursive: true });
+  writeFileSync(join(outputDir, "POST.json"), raw, "utf8");
+}
+
+main();
